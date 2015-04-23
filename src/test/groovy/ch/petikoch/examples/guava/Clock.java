@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
+// Just example code. Don't use in production!
 public class Clock {
 
     private final AtomicLong internalTime;
