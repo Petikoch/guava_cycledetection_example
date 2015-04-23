@@ -1,0 +1,40 @@
+apply plugin: 'java'
+apply plugin: 'groovy'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+ext.fileEncoding = 'UTF-8'
+
+version = '1.0'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile 'com.google.guava:guava:18.0'
+
+	testCompile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.4.3'
+	testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
+		exclude group: 'org.codehaus.groovy'
+	}
+}
+
+test {
+	systemProperty 'file.encoding', project.fileEncoding
+}
+
+tasks.withType(GroovyCompile) {
+	groovyOptions.encoding = project.fileEncoding
+	options.encoding = project.fileEncoding
+}
+
+tasks.withType(JavaCompile) {
+	options.encoding = project.fileEncoding
+}
+
+// http://forums.gradle.org/gradle/topics/set_maxparallelforks_to_number_of_cores_on_the_current_machine
+tasks.withType(Test) {
+	maxParallelForks = Runtime.getRuntime().availableProcessors()
+}

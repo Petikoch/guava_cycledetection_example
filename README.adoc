@@ -1,0 +1,96 @@
+= Comparing Guava's CycleDetectingLockFactory with jtwfg regarding cycle (deadlock) detection
+Peti Koch
+:imagesdir: ./images
+
+Peti Koch +
+23 April  2015
+
+== Guava CycleDetectingLockFactory, jtwfg ... wtf?
+
+https://github.com/google/guava[Guava] is a feature-rich java library with incredible tools in it,
+a must have for almost any Java project out there. It includes since version 13.0 the CycleDetectingLockFactory class, altough still @Beta even in 18.0.
+
+https://github.com/Petikoch/jtwfg[jtwfg] is a small java library focusing just on finding deadlocks (cycles)
+in directed graphs. jtwfg is pretty new (started in late 2014).
+
+== Motivation
+
+My name is Peti Koch. I'm the author of jtwfg and didn't know about Guava's CycleDetectingLockFactory when I started jtwfg.
+I wondered if Guava's CycleDetectingLockFactory could solve the same problem as jtwfg and therefore jtwfg is obsolete and could be deleted.
+
+== Analysis
+
+I checked out the features of Guava's CycleDetectingLockFactory using link:src/test/groovy/ch/petikoch/examples/guava/Guava_CycleDetection_Example.groovy[these tests] (based on Groovy/Spock).
+
+=== Analysis regarding cycle detection / deadlock finding
+
+[cols="3*", options="header"]
+|===
+|Feature
+|Guava's CycleDetectingLockFactory
+|jtwfg
+
+|Determine if there are cycles or not in the graph
+|TODO
+|*yes*
+
+|Finding which tasks/vertexes are in a cycle
+|TODO
+|*yes*
+
+|Finding distinct cycles
+|TODO
+|*yes*
+
+|Finding tasks/vertexes outside of a cycle but dependent on a task/vertex which is in a cycle (these tasks/vertexes are also "deadlocked")
+|TODO
+|*yes*
+
+|*Thread-safety*: Building a graph concurrently using multiple threads
+|TODO
+|*yes*
+
+|===
+
+=== Analysis regarding visualization of graphs
+
+[cols="3*", options="header"]
+|===
+|Feature
+|Guava's CycleDetectingLockFactory
+|jtwfg
+
+|Export to other formats like e.g. DOT, GML, ...
+|*No*
+|*No*
+|===
+
+=== Analysis regarding preconditions for usage
+
+[cols="3*", options="header"]
+|===
+|Feature
+|Guava's CycleDetectingLockFactory
+|jtwfg
+
+|Dependencies on other libs
+|none
+|none
+
+|Minimum JRE version
+|Java *6*
+|Java *7*
+
+|Licence
+|Apache 2.0
+|Apache 2.0
+|===
+
+
+== Summary
+
+This is work in progress. I'm having troubles producing a deadlock-Exception in with Guava's CycleDetectingLockFactory... :-(
+
+Best regards,
+
+image::Signature.jpg[]
