@@ -31,7 +31,7 @@ class Guava_CycleDetection_Example extends Specification {
             } catch (CycleDetectingLockFactory.PotentialDeadlockException ex) {
                 exceptionCollector.add(ex)
             } finally {
-                clock.advanceTime() // deadlock over
+                clock.advanceTime() // signal "deadlock over"
             }
         }
 
@@ -48,16 +48,17 @@ class Guava_CycleDetection_Example extends Specification {
             } catch (CycleDetectingLockFactory.PotentialDeadlockException ex) {
                 exceptionCollector.add(ex)
             } finally {
-                clock.advanceTime() // deadlock over
+                clock.advanceTime() // signal "deadlock over"
             }
         }
 
         when:
         clock.advanceTime() // start
-        clock.awaitTime(6, TimeUnit.SECONDS.toMillis(2)) // await deadlock over
+        clock.awaitTime(6, TimeUnit.SECONDS.toMillis(2)) // await "deadlock over"
 
         then:
         exceptionCollector.size() >= 1
+        //TODO more checks
     }
 
 }
