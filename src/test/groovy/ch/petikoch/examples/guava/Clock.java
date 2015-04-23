@@ -35,19 +35,34 @@ public class Clock {
 
     public void awaitTime(long time, long timeoutMs) throws TimeoutException {
         System.out.println("Thread '" + Thread.currentThread().getName() + "' is waiting for time: " + time);
+
         Stopwatch stopWatch = Stopwatch.createStarted();
         Stopwatch showLifeSignStopWatch = Stopwatch.createStarted();
+
         while (internalTime.get() < time) {
-            Thread.yield();
-            if (stopWatch.elapsed(TimeUnit.MILLISECONDS) >= timeoutMs) {
-                throw new TimeoutException();
-            }
+            sleep_a_little_while();
+            checkTimeout(timeoutMs, stopWatch);
             if (showLifeSignStopWatch.elapsed(TimeUnit.SECONDS) >= 1) {
                 showLifeSignStopWatch = Stopwatch.createStarted();
                 System.out.println("Thread '" + Thread.currentThread().getName() + "' is still waiting for time: " + time);
             }
         }
-        System.out.println("Thread '" + Thread.currentThread().getName() + "' time " + time + " arrived.");
+
+        System.out.println("Time " + time + " arrived for Thread '" + Thread.currentThread().getName() + "'");
+    }
+
+    private void checkTimeout(long timeoutMs, Stopwatch stopWatch) throws TimeoutException {
+        if (stopWatch.elapsed(TimeUnit.MILLISECONDS) >= timeoutMs) {
+            throw new TimeoutException();
+        }
+    }
+
+    private void sleep_a_little_while() {
+        try {
+            Thread.sleep(1);
+        } catch (InterruptedException e) {
+            throw Throwables.propagate(e);
+        }
     }
 
     @Override
