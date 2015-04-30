@@ -35,8 +35,8 @@ jtwfg *analyzes* a current situation to check, if there *is* a deadlock situatio
 
 What about using jtwfg also for deadlock preventing? This is of course possible: Let's assume we hook into (intercept) the
 "dependency building process" at runtime: There is one task trying to add a new dependency to another task. Before allowing this,
-we build the current situation (task wait for graph model), check for deadlocks (none expected) and add then the new task/dependency
-and check for deadlocks again. If there is no deadlock, we *allow* the new dependency, otherwise we reject it (throwing an exception, ...)
+we build the current situation (task wait for graph model), check for deadlocks (none expected in the graph area of interest) and add then the new task/dependency
+and check for deadlocks again. If there is no deadlock (in the graph area of interest), we *allow* the new dependency, otherwise we reject it (throwing an exception, ...)
 to prevent the deadlock.
 
 What about extending Guava's CycleDetectingLockFactory for *detection*? Well, for deadlock-situations associated with threads and *locks*
