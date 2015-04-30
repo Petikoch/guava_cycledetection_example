@@ -39,9 +39,12 @@ we build the current situation (task wait for graph model), check for deadlocks 
 and check for deadlocks again. If there is no deadlock, we *allow* the new dependency, otherwise we reject it (throwing an exception, ...)
 to prevent the deadlock.
 
+What about extending Guava's CycleDetectingLockFactory for *detection*? Well, for deadlock-situations associated with threads and *locks*
+there is already Java's built in `java.lang.management.ThreadMXBean` class, which implements this footnote:[https://docs.oracle.com/javase/7/docs/api/java/lang/management/ThreadMXBean.html].
+
 ==== Difference 2: Domain Model
 
-Guava's CycleDetectingLockFactory works only in the domain of Java's `java.util.concurrent.locks.Lock`.
+Guava's CycleDetectingLockFactory works only in Java's `java.util.concurrent.locks.Lock` domain.
 Although it uses internally a generic graph domain model, you would have to transform your domain model
 to `java.util.concurrent.locks.Lock` 's, if you would like to use it's cycle detection mechanism.
 
