@@ -24,7 +24,7 @@ I checked out the features of Guava's CycleDetectingLockFactory using link:src/t
 
 === Analysis regarding cycle detection / deadlock finding
 
-There are two main differences between the guava class and jtwfg
+There are two main differences between the guava class and jtwfg.
 
 ==== Difference 1: Preventing vs Detecting
 
@@ -32,6 +32,12 @@ Guava's CycleDetectingLockFactory ensures, that there is no cycle in the lock ac
 At the moment, the implementation comes with the price of _false positives_ footnote:[https://github.com/google/guava/issues/2042].
 
 jtwfg *analyzes* a current situation to check, if there *is* a deadlock situation.
+
+What about using jtwfg also for deadlock preventing? This is of course possible: Let's assume we hook into (intercept) the
+"dependency building process" at runtime: There is one task trying to add a new dependency to another task. Before allowing this,
+we build the current situation (task wait for graph model), check for deadlocks (none expected) and add then the new task/dependency
+and check for deadlocks again. If there is no deadlock, we *allow* the new dependency, otherwise we reject it (throwing an exception, ...)
+to prevent the deadlock.
 
 ==== Difference 2: Domain Model
 
@@ -82,7 +88,7 @@ jtwfg has a generic task wait for graph model.
 
 == Summary
 
-This is work in progress. I'm having troubles producing a deadlock-Exception in with Guava's CycleDetectingLockFactory... :-(
+This is work in progress. I wonder what the Google people reply on https://github.com/google/guava/issues/2042.
 
 Best regards,
 
