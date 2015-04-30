@@ -54,7 +54,7 @@ class Guava_CycleDetection_Example extends Specification {
 
         when:
         clock.advanceTime() // start
-        clock.awaitTime(6, TimeUnit.SECONDS.toMillis(10)) // await "deadlock over"
+        clock.awaitTime(6, TimeUnit.SECONDS.toMillis(100)) // await "deadlock over"
 
         then:
         exceptionCollector.size() >= 1

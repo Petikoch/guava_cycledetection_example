@@ -3,12 +3,12 @@ Peti Koch
 :imagesdir: ./images
 
 Peti Koch +
-23 April  2015
+30 April  2015
 
 == Guava CycleDetectingLockFactory, jtwfg ... wtf?
 
 https://github.com/google/guava[Guava] is a feature-rich java library with incredible tools in it,
-a must have for almost any Java project out there. It includes since version 13.0 the CycleDetectingLockFactory class, altough still @Beta even in 18.0.
+a must have for almost any Java project out there. It includes since version 13.0 the CycleDetectingLockFactory class, altough still @Beta, even in 18.0.
 
 https://github.com/Petikoch/jtwfg[jtwfg] is a small java library focusing just on finding deadlocks (cycles)
 in directed graphs. jtwfg is pretty new (started in late 2014).
@@ -24,33 +24,22 @@ I checked out the features of Guava's CycleDetectingLockFactory using link:src/t
 
 === Analysis regarding cycle detection / deadlock finding
 
-[cols="3*", options="header"]
-|===
-|Feature
-|Guava's CycleDetectingLockFactory
-|jtwfg
+There are two main differences between the guava class and jtwfg
 
-|Determine if there are cycles or not in the graph
-|TODO
-|*yes*
+==== Difference 1: Preventing vs Detecting
 
-|Finding which tasks/vertexes are in a cycle
-|TODO
-|*yes*
+Guava's CycleDetectingLockFactory ensures, that there is no cycle in the lock acquisition *order*, to *prevent* *potential* deadlocks.
+At the moment, the implementation comes with the price of _false positives_ footnote:[https://github.com/google/guava/issues/2042].
 
-|Finding distinct cycles
-|TODO
-|*yes*
+jtwfg *analyzes* a current situation to check, if there *is* a deadlock situation.
 
-|Finding tasks/vertexes outside of a cycle but dependent on a task/vertex which is in a cycle (these tasks/vertexes are also "deadlocked")
-|TODO
-|*yes*
+==== Difference 2: Domain Model
 
-|*Thread-safety*: Building a graph concurrently using multiple threads
-|TODO
-|*yes*
+Guava's CycleDetectingLockFactory works only in the domain of Java's `java.util.concurrent.locks.Lock`.
+Although it uses internally a generic graph domain model, you would have to transform your domain model
+to `java.util.concurrent.locks.Lock` 's, if you would like to use it's cycle detection mechanism.
 
-|===
+jtwfg has a generic task wait for graph model.
 
 === Analysis regarding visualization of graphs
 
@@ -63,6 +52,10 @@ I checked out the features of Guava's CycleDetectingLockFactory using link:src/t
 |Export to other formats like e.g. DOT, GML, ...
 |*No*
 |*No*
+
+|Create human readable text explaining the cycle
+|*Yes*
+|*Yes*
 |===
 
 === Analysis regarding preconditions for usage
