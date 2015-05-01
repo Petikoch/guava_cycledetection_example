@@ -20,8 +20,9 @@ I wondered if Guava's CycleDetectingLockFactory could solve the same problem as 
 
 == Analysis
 
-I checked out the features of Guava's CycleDetectingLockFactory using link:src/test/groovy/ch/petikoch/examples/guava/Guava_CycleDetection_Example.groovy[these tests] (based on Groovy/Spock).
-Pretty soon, I stopped wondering about the test and writing additional tests, because there is a different approach used in CycleDetectingLockFactory.
+I checked out the features of Guava's CycleDetectingLockFactory using a Groovy/Spock based link:src/test/groovy/ch/petikoch/examples/guava/Guava_CycleDetection_Example.groovy[test]
+and a "plain" JUnit 3.x link:src/test/groovy/ch/petikoch/examples/guava/CycleDetectingLockFactoryTest.java[test].
+Pretty soon, I stopped wondering about the tests and writing tests, because there is a special approach used in CycleDetectingLockFactory.
 
 === Analysis regarding cycle detection / deadlock finding
 
@@ -49,10 +50,13 @@ What about using jtwfg also for deadlock preventing? This is of course possible:
 "dependency building process" at runtime: There is one task trying to add a new dependency to another task. Before allowing this,
 we build the current situation (task wait for graph model), check for deadlocks (none expected in the graph area of interest) and add then the new task/dependency
 and check for deadlocks again. If there is no deadlock (in the graph area of interest), we *allow* the new dependency, otherwise we reject it (throwing an exception, ...)
-to prevent the deadlock.
+to prevent the deadlock. If you have an amazing coverage with tests of your code, covering all possible scenarios with different lock acquisition orders,
+and run these in pre-production, you will not have deadlocks in production. But in a typically shared-state / concurrent code-world,
+with it's intrinsic non-deterministic execution order, it will be extremely hard / impossible to cover all scenarios as soon as you have let's say more than 3 locks.
 
-Or we do the same and build a task wait for graph model "only" for the lock acquisition order,
-not for the state "who is dependent on who at the moment". Of course, this comes with the price of false positives and
+Ok, so what about doing the same as CycleDetectingLockFactory and also enforce the "lock acquisition order rule" using jtwfg?
+You'll have to build/maintain a jtwfg "task wait for graph model" "only" for the lock acquisition order,
+not for the state "who is dependent on who at the moment". That's of course possible. Remember, this comes with the price of false positives and
 reduces the freedom for lock acquisition order with the benefit of more "safety".
 
 What about extending Guava's CycleDetectingLockFactory for *detection*? Well, for deadlock-situations associated with threads and *locks*

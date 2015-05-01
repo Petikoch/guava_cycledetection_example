@@ -1,5 +1,6 @@
-package com.google.common.util.concurrent;
+package ch.petikoch.examples.guava;
 
+import com.google.common.util.concurrent.CycleDetectingLockFactory;
 import com.google.common.util.concurrent.CycleDetectingLockFactory.Policies;
 import junit.framework.TestCase;
 
