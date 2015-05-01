@@ -30,7 +30,7 @@ There are two main differences between the guava class and jtwfg.
 
 ==== Difference 1: Preventing vs Detecting
 
-===== CycleDetectingLockFactory
+===== CycleDetectingLockFactory: Preventing.
 
 Guava's CycleDetectingLockFactory ensures, that there is no cycle in the lock *acquisition* *order*, to *prevent* *potential* deadlocks.
 Again, it's about checking the lock *acquisition* *order*. This approach comes with the price of _false positives_ footnote:[https://github.com/google/guava/issues/2042].
@@ -42,22 +42,25 @@ If you put this into your code and do unit-testing, integration-testing, manual 
 notice violations of this rule and hardly ever rollout a production version of your code with "illegal lock acquisition order".
 You will not have deadlocks.
 
-===== jtwfg
+===== jtwfg: Detecting. And Preventing?
 
 jtwfg *analyzes* a current situation to check, if there *is* a deadlock situation.
 
-What about using jtwfg also for deadlock preventing? This is of course possible: Let's assume we hook into (intercept) the
+What about using jtwfg also for deadlock preventing? With no false-positives? Let's assume we hook into (intercept) the
 "dependency building process" at runtime: There is one task trying to add a new dependency to another task. Before allowing this,
 we build the current situation (task wait for graph model), check for deadlocks (none expected in the graph area of interest) and add then the new task/dependency
 and check for deadlocks again. If there is no deadlock (in the graph area of interest), we *allow* the new dependency, otherwise we reject it (throwing an exception, ...)
-to prevent the deadlock. If you have an amazing coverage with tests of your code, covering all possible scenarios with different lock acquisition orders,
-and run these in pre-production, you will not have deadlocks in production. But in a typically shared-state / concurrent code-world,
+to prevent the deadlock. If you have an amazing test-coverage of your code, covering all possible scenarios with different lock acquisition orders,
+and run these tests in pre-production, you will not have deadlocks in production. But in a typically shared-state / concurrent code-world,
 with it's intrinsic non-deterministic execution order, it will be extremely hard / impossible to cover all scenarios as soon as you have let's say more than 3 locks.
+So, you'll have no real warranty to have no deadlocks in production, but you will have no false positives.
 
 Ok, so what about doing the same as CycleDetectingLockFactory and also enforce the "lock acquisition order rule" using jtwfg?
 You'll have to build/maintain a jtwfg "task wait for graph model" "only" for the lock acquisition order,
-not for the state "who is dependent on who at the moment". That's of course possible. Remember, this comes with the price of false positives and
-reduces the freedom for lock acquisition order with the benefit of more "safety".
+not for the state "who is dependent on who at the moment". That's of course possible. Remember, this comes with the *price* of false positives and
+reduces the freedom for lock acquisition order, with the *benefit* of more "safety".
+
+===== CycleDetectingLockFactory: Detecting?
 
 What about extending Guava's CycleDetectingLockFactory for *detection*? Well, for deadlock-situations associated with threads and *locks*
 there is already Java's built in `java.lang.management.ThreadMXBean` class, which implements this footnote:[https://docs.oracle.com/javase/7/docs/api/java/lang/management/ThreadMXBean.html].
