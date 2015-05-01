@@ -21,6 +21,7 @@ I wondered if Guava's CycleDetectingLockFactory could solve the same problem as 
 == Analysis
 
 I checked out the features of Guava's CycleDetectingLockFactory using link:src/test/groovy/ch/petikoch/examples/guava/Guava_CycleDetection_Example.groovy[these tests] (based on Groovy/Spock).
+Pretty soon, I stopped wondering about the test and writing additional tests, because there is a different approach used in CycleDetectingLockFactory.
 
 === Analysis regarding cycle detection / deadlock finding
 
@@ -28,8 +29,19 @@ There are two main differences between the guava class and jtwfg.
 
 ==== Difference 1: Preventing vs Detecting
 
-Guava's CycleDetectingLockFactory ensures, that there is no cycle in the lock acquisition *order*, to *prevent* *potential* deadlocks.
-At the moment, the implementation comes with the price of _false positives_ footnote:[https://github.com/google/guava/issues/2042].
+===== CycleDetectingLockFactory
+
+Guava's CycleDetectingLockFactory ensures, that there is no cycle in the lock *acquisition* *order*, to *prevent* *potential* deadlocks.
+Again, it's about checking the lock *acquisition* *order*. This approach comes with the price of _false positives_ footnote:[https://github.com/google/guava/issues/2042].
+To understand this approach, read http://en.wikipedia.org/wiki/Lock_(computer_science)#Types[Wikipedia]:
+_"Careless use of locks can result in deadlock or livelock. A number of strategies can be used to avoid or recover from deadlocks or livelocks, both at design-time and at run-time. (The most common strategy is to standardize the lock acquisition sequences so that combinations of inter-dependent locks are always acquired and released in a specifically defined "cascade" order.)"._
+
+CycleDetectingLockFactory helps you to enforce the rule "that locks may only be obtained in a specially defined cascade order".
+If you put this into your code and do unit-testing, integration-testing, manual testing, ... (you somehow run the code in a pre-production manner) you will immediately
+notice violations of this rule and hardly ever rollout a production version of your code with "illegal lock acquisition order".
+You will not have deadlocks.
+
+===== jtwfg
 
 jtwfg *analyzes* a current situation to check, if there *is* a deadlock situation.
 
@@ -39,14 +51,18 @@ we build the current situation (task wait for graph model), check for deadlocks 
 and check for deadlocks again. If there is no deadlock (in the graph area of interest), we *allow* the new dependency, otherwise we reject it (throwing an exception, ...)
 to prevent the deadlock.
 
+Or we do the same and build a task wait for graph model "only" for the lock acquisition order,
+not for the state "who is dependent on who at the moment". Of course, this comes with the price of false positives and
+reduces the freedom for lock acquisition order with the benefit of more "safety".
+
 What about extending Guava's CycleDetectingLockFactory for *detection*? Well, for deadlock-situations associated with threads and *locks*
 there is already Java's built in `java.lang.management.ThreadMXBean` class, which implements this footnote:[https://docs.oracle.com/javase/7/docs/api/java/lang/management/ThreadMXBean.html].
 
 ==== Difference 2: Domain Model
 
-Guava's CycleDetectingLockFactory works only in Java's `java.util.concurrent.locks.Lock` domain.
+Guava's CycleDetectingLockFactory focuses on Java's `java.util.concurrent.locks.Lock` domain.
 Although it uses internally a generic graph domain model, you would have to transform your domain model
-to `java.util.concurrent.locks.Lock` 's, if you would like to use it's cycle detection mechanism.
+to `java.util.concurrent.locks.Lock` 's, if you would like to use it's cycle detection/prevention mechanism.
 
 jtwfg has a generic task wait for graph model.
 
@@ -91,7 +107,9 @@ jtwfg has a generic task wait for graph model.
 
 == Summary
 
-This is work in progress. I wonder what the Google people reply on https://github.com/google/guava/issues/2042.
+This comparison helped me a lot to better understand the typical way to prevent deadlocks:
+Enforce the lock acquisition order. Probably you're interested also in a discussion which I had
+with Darick Tong from Google: Check out https://github.com/google/guava/issues/2042.
 
 Best regards,
 
