@@ -113,7 +113,7 @@ jtwfg has a generic task wait for graph model.
 == Summary
 
 This comparison helped me a lot to better understand the typical way to prevent deadlocks:
-Enforce the lock acquisition order. Probably you're interested also in a discussion which I had
+Enforce the lock acquisition order. Probably you're also interested in a discussion which I had
 with Darick Tong from Google: Check out https://github.com/google/guava/issues/2042.
 
 Best regards,
